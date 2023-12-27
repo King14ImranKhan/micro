@@ -17,7 +17,7 @@ public class MyPostFilter implements GlobalFilter , Ordered{
 	public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
 		
 		return chain.filter(exchange).then(Mono.fromRunnable(()->{
-			logger.info("My First Post-Filter is executed..");
+			logger.info("My Last Post-Filter is executed..");
 		}));
 	}
 
