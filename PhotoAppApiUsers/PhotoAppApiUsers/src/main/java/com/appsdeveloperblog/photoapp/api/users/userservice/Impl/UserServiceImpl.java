@@ -18,6 +18,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.appsdeveloperblog.photoapp.api.users.data.AlbumsServiceClient;
 import com.appsdeveloperblog.photoapp.api.users.data.UserEntity;
 import com.appsdeveloperblog.photoapp.api.users.data.UsersRepository;
 import com.appsdeveloperblog.photoapp.api.users.model.AlbumResponseModel;
@@ -29,17 +30,25 @@ public class UserServiceImpl implements UserService {
 
 	UsersRepository usersRepository;
 	BCryptPasswordEncoder bCryptPasswordEncoder;
-	RestTemplate restTemplate;
+	//RestTemplate restTemplate;
+	AlbumsServiceClient albumServiceClient;
 	Environment env;
 
+//	@Autowired
+//	public UserServiceImpl(UsersRepository usersRepository, BCryptPasswordEncoder bCryptPasswordEncoder,RestTemplate restTemplate,Environment env) {
+//		this.usersRepository = usersRepository;
+//		this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+//		this.restTemplate = restTemplate;
+//		this.env=env;
+//	}
+	
 	@Autowired
-	public UserServiceImpl(UsersRepository usersRepository, BCryptPasswordEncoder bCryptPasswordEncoder,RestTemplate restTemplate,Environment env) {
+	public UserServiceImpl(UsersRepository usersRepository, BCryptPasswordEncoder bCryptPasswordEncoder,AlbumsServiceClient albumServiceClient,Environment env) {
 		this.usersRepository = usersRepository;
 		this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-		this.restTemplate = restTemplate;
+		this.albumServiceClient = albumServiceClient;
 		this.env=env;
 	}
-
 	@Override
 	public UserDto createUser(UserDto userDetails) {
 		userDetails.setEncryptedPassword(bCryptPasswordEncoder.encode(userDetails.getPassword()));
@@ -76,10 +85,11 @@ public class UserServiceImpl implements UserService {
 		if(userEntity == null) throw new UsernameNotFoundException("User not found..");
 		UserDto userDto = new ModelMapper().map(userEntity, UserDto.class);
 		//String albumsUrl = String.format("http://ALBUMS-WS/users/7584754875/albums",userId);
-		String albumsUrl = String.format(env.getProperty("albums.url"),userId);
+		/*String albumsUrl = String.format(env.getProperty("albums.url"),userId);
 		ResponseEntity<List<AlbumResponseModel>> albumsListResponse = restTemplate.exchange(albumsUrl, HttpMethod.GET, null ,new ParameterizedTypeReference<List<AlbumResponseModel>>(){
 		});
-		List<AlbumResponseModel> albumsList = albumsListResponse.getBody();
+		List<AlbumResponseModel> albumsList = albumsListResponse.getBody();*/
+		List<AlbumResponseModel> albumsList =albumServiceClient.getAlbums(userId);
 		userDto.setAlbums(albumsList);
 		return userDto;
 	}
