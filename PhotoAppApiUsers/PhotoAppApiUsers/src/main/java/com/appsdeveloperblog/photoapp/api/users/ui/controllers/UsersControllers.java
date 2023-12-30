@@ -25,7 +25,7 @@ public class UsersControllers {
 	@Autowired
 	Environment env;
 	
-	@GetMapping
+	@GetMapping(value="/status/check")
 	public String getStatus() {
 		
 		return "Working on port "+env.getProperty("local.server.port")+", with token = "+env.getProperty("token.secret");
