@@ -4,8 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.env.Environment;
@@ -25,8 +28,12 @@ import com.appsdeveloperblog.photoapp.api.users.model.AlbumResponseModel;
 import com.appsdeveloperblog.photoapp.api.users.shared.UserDto;
 import com.appsdeveloperblog.photoapp.api.users.ui.service.UserService;
 
+import feign.FeignException;
+
 @Service
 public class UserServiceImpl implements UserService {
+	
+	Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	UsersRepository usersRepository;
 	BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -89,7 +96,16 @@ public class UserServiceImpl implements UserService {
 		ResponseEntity<List<AlbumResponseModel>> albumsListResponse = restTemplate.exchange(albumsUrl, HttpMethod.GET, null ,new ParameterizedTypeReference<List<AlbumResponseModel>>(){
 		});
 		List<AlbumResponseModel> albumsList = albumsListResponse.getBody();*/
-		List<AlbumResponseModel> albumsList =albumServiceClient.getAlbums(userId);
+		
+		
+//		List<AlbumResponseModel> albumsList = null;
+//		try {
+//		albumsList =albumServiceClient.getAlbums(userId);
+//		}catch(FeignException ex) {
+//			ex.printStackTrace();
+//		}
+		//Now above try catch is not required because we have created FeignErrorDecode.java for exception
+		List<AlbumResponseModel> albumsList = albumServiceClient.getAlbums(userId);
 		userDto.setAlbums(albumsList);
 		return userDto;
 	}
