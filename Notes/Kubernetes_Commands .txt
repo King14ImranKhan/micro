@@ -1,0 +1,105 @@
+Kubernetes is a powerful container orchestration platform, and it has a comprehensive set of commands for managing clusters, deployments, services, and more. Here's a list of common Kubernetes commands along with explanations:
+
+Cluster Management:
+Initialize a Cluster:
+kubeadm init
+Initializes a new Kubernetes control-plane node.
+
+
+Join a Cluster:
+kubeadm join <control-plane-host>:<port> --token <token> --discovery-token-ca-cert-hash <hash>
+Joins a node to the Kubernetes cluster.
+
+
+View Cluster Nodes:
+kubectl get nodes
+Displays information about nodes in the cluster.
+
+
+View Cluster Components:
+kubectl get componentstatuses
+Shows the health of various cluster components.
+
+
+Pod and Container Management:
+Create a Pod:
+kubectl create pod <pod_name> --image=<container_image>
+Creates a pod running a single container.
+
+List Pods:
+kubectl get pods
+Displays all pods in the current namespace.
+
+
+Describe a Pod:
+kubectl describe pod <pod_name>
+Provides detailed information about a specific pod.
+
+
+Delete a Pod:
+kubectl delete pod <pod_name>
+Removes a pod from the cluster.
+
+
+Deployment Management:
+Create a Deployment:
+kubectl create deployment <deployment_name> --image=<container_image>
+Creates a deployment to manage replica sets.
+
+
+List Deployments:
+kubectl get deployments
+Shows all deployments in the current namespace.
+
+
+Scale a Deployment:
+kubectl scale deployment <deployment_name> --replicas=<number>
+Adjusts the number of replicas for a deployment.
+
+
+Rolling Updates:
+kubectl set image deployment/<deployment_name> <container_name>=<new_image_version>
+Performs rolling updates for a deployment.
+
+
+Service Management:
+Create a Service:
+kubectl expose deployment <deployment_name> --type=ClusterIP --port=<port>
+Creates a service to expose a deployment.
+
+
+List Services:
+kubectl get services
+Displays all services in the current namespace.
+
+
+Describe a Service:
+kubectl describe service <service_name>
+Provides details about a specific service.
+
+
+Configuration and Troubleshooting:
+View Configurations:
+kubectl config view
+Displays the current kubeconfig settings.
+
+
+View Cluster Events:
+kubectl get events
+Shows events from all namespaces.
+
+
+Access Pod Logs:
+kubectl logs <pod_name>
+Retrieves logs from a specific pod.
+
+
+Persistent Volumes:
+Create a Persistent Volume:
+kubectl apply -f <persistent_volume_definition.yaml>
+Creates a persistent volume based on a YAML file.
+
+
+List Persistent Volumes:
+kubectl get pv
+Shows information about persistent volumes.

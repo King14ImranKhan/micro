@@ -1,0 +1,336 @@
+MongoDB
+In MongoDB, a collection is similar to an RDBMS table. It is a grouping of MongoDB documents, and it does not enforce a specific schema on the documents. Collections can dynamically accommodate documents with different structures.
+Each document in a collection can have different fields and data types.
+MongoDB collections support dynamic schemas, allowing documents within the same collection to have different structures.
+
+Update Example-
+// Assume the initial document in the "users" collection
+db.users.insert({
+   username: "john_doe",
+   name: "John Doe",
+   age: 30,
+   email: "john@example.com"
+})
+
+// Update the "name" and "age" fields for the document with username "john_doe"
+db.users.updateOne(
+   { username: "john_doe" }, // Filter criteria
+   {
+      $set: {
+         name: "Updated Name",
+         age: 31
+      }
+   }
+)
+
+UpdateMany-
+// Assume the initial documents in the "students" collection
+db.students.insertMany([
+   { name: "Alice", score: 75, grade: "C" },
+   { name: "Bob", score: 90, grade: "A" },
+   { name: "Charlie", score: 60, grade: "D" },
+   { name: "David", score: 85, grade: "B" },
+   { name: "Eve", score: 70, grade: "C" }
+])
+
+// Update the "grade" field for all students with a score greater than or equal to 80
+db.students.updateMany(
+   { score: { $gte: 80 } }, // Filter criteria
+   {
+      $set: {
+         grade: "A" // Set the new grade
+      }
+   }
+)
+
+
+MongoDB provides a variety of methods for interacting with its database and collections. Here is an overview of some commonly used MongoDB methods:
+
+Database Methods:
+use(dbname):
+
+Switches to the specified database.
+javascript
+Copy code
+use mydatabase
+show dbs:
+
+Displays a list of all available databases.
+javascript
+Copy code
+show dbs
+db.dropDatabase():
+
+Deletes the current database.
+javascript
+Copy code
+use mydatabase
+db.dropDatabase()
+Collection Methods:
+db.createCollection(name, options):
+
+Creates a new collection.
+javascript
+Copy code
+db.createCollection("mycollection")
+show collections:
+
+Displays a list of all collections in the current database.
+javascript
+Copy code
+show collections
+db.collection.drop():
+
+Drops or deletes the specified collection.
+javascript
+Copy code
+db.mycollection.drop()
+Document CRUD Methods:
+db.collection.insert(document):
+
+Inserts a document or an array of documents into a collection.
+javascript
+Copy code
+db.mycollection.insert({ name: "John Doe", age: 30 })
+db.collection.find(query, projection):
+
+Retrieves documents from a collection based on the specified query and projection.
+javascript
+Copy code
+db.mycollection.find({ age: { $gte: 25 } }, { name: 1, _id: 0 })
+db.collection.update(query, update, options):
+
+Updates documents in a collection based on the specified query and update criteria.
+javascript
+Copy code
+db.mycollection.update({ name: "John Doe" }, { $set: { age: 31 } })
+db.collection.updateOne(filter, update, options):
+
+Updates a single document in a collection based on the specified filter.
+javascript
+Copy code
+db.mycollection.updateOne({ name: "John Doe" }, { $set: { age: 32 } })
+db.collection.updateMany(filter, update, options):
+Updates multiple documents in a collection based on the specified filter.
+javascript
+Copy code
+db.mycollection.updateMany({ age: { $gte: 30 } }, { $set: { status: "Senior" } })
+db.collection.remove(query):
+Removes documents from a collection based on the specified query.
+javascript
+Copy code
+db.mycollection.remove({ age: { $lt: 25 } })
+db.collection.deleteOne(filter):
+Deletes a single document from a collection based on the specified filter.
+javascript
+Copy code
+db.mycollection.deleteOne({ name: "John Doe" })
+db.collection.deleteMany(filter):
+Deletes multiple documents from a collection based on the specified filter.
+javascript
+Copy code
+db.mycollection.deleteMany({ status: "Inactive" })
+
+
+
+The $lookup stage in MongoDB's aggregation pipeline is used to perform a left outer join between documents from two collections. It is commonly used when you have documents in one collection that refer to documents in another collection through a field. Here's an example:
+
+Consider two collections: orders and products. Each order document has a product_id field that references a document in the products collection.
+
+Let's create some sample data and then use the $lookup stage to retrieve information about products for each order:
+
+Sample Data Setup:
+javascript
+Copy code
+// Insert sample data into the "products" collection
+db.products.insertMany([
+   { _id: 1, name: "Laptop", price: 1200 },
+   { _id: 2, name: "Smartphone", price: 600 },
+   { _id: 3, name: "Tablet", price: 400 }
+])
+
+// Insert sample data into the "orders" collection
+db.orders.insertMany([
+   { _id: 101, order_number: "ORD101", product_id: 1, quantity: 2 },
+   { _id: 102, order_number: "ORD102", product_id: 2, quantity: 1 },
+   { _id: 103, order_number: "ORD103", product_id: 1, quantity: 3 },
+   { _id: 104, order_number: "ORD104", product_id: 3, quantity: 1 }
+])
+Using $lookup:
+javascript
+Copy code
+// Use $lookup to perform a left outer join between "orders" and "products"
+db.orders.aggregate([
+   {
+      $lookup: {
+         from: "products",           // Target collection
+         localField: "product_id",   // Field from the input documents (orders collection)
+         foreignField: "_id",        // Field from the target documents (products collection)
+         as: "product_details"       // Output array field containing the matching products
+      }
+   },
+   {
+      $unwind: "$product_details"   // Unwind the product_details array to separate the joined documents
+   },
+   {
+      $project: {
+         _id: 1,
+         order_number: 1,
+         quantity: 1,
+         "product_details.name": 1,
+         "product_details.price": 1
+      }
+   }
+])
+In this example:
+
+The $lookup stage performs the left outer join between the "orders" and "products" collections based on the product_id field in the "orders" collection and the _id field in the "products" collection.
+
+The $unwind stage is used to flatten the product_details array produced by the $lookup stage.
+
+The $project stage is used to reshape the output, showing relevant fields from both collections.
+
+The final result will include information about orders along with details about the corresponding products:
+
+javascript
+Copy code
+{ "_id" : 101, "order_number" : "ORD101", "quantity" : 2, "product_details" : { "name" : "Laptop", "price" : 1200 } }
+{ "_id" : 102, "order_number" : "ORD102", "quantity" : 1, "product_details" : { "name" : "Smartphone", "price" : 600 } }
+{ "_id" : 103, "order_number" : "ORD103", "quantity" : 3, "product_details" : { "name" : "Laptop", "price" : 1200 } }
+{ "_id" : 104, "order_number" : "ORD104", "quantity" : 1, "product_details" : { "name" : "Tablet", "price" : 400 } }
+This result shows orders with details about the corresponding products. The $lookup stage is a powerful tool for handling relationships between documents in different collections.
+
+
+
+
+The $unwind stage in MongoDB's aggregation pipeline is used to deconstruct an array field from the input documents, creating a separate document for each element in the array. This is particularly useful when you have documents with arrays, and you want to perform further operations on each array element individually.
+
+Here's an example of using $unwind:
+
+Assuming you have a collection named students with documents like this:
+
+javascript
+Copy code
+db.students.insert({
+   name: "Alice",
+   grades: [85, 90, 88]
+})
+
+db.students.insert({
+   name: "Bob",
+   grades: [78, 92, 89]
+})
+You can use $unwind to create a separate document for each grade:
+
+javascript
+Copy code
+db.students.aggregate([
+   {
+      $unwind: "$grades"
+   }
+])
+The result will be:
+
+javascript
+Copy code
+{ "_id" : ObjectId("..."), "name" : "Alice", "grades" : 85 }
+{ "_id" : ObjectId("..."), "name" : "Alice", "grades" : 90 }
+{ "_id" : ObjectId("..."), "name" : "Alice", "grades" : 88 }
+{ "_id" : ObjectId("..."), "name" : "Bob", "grades" : 78 }
+{ "_id" : ObjectId("..."), "name" : "Bob", "grades" : 92 }
+{ "_id" : ObjectId("..."), "name" : "Bob", "grades" : 89 }
+In this example:
+
+The $unwind stage is used to deconstruct the grades array field.
+
+For each input document, the array is "unwound" or expanded, creating a separate output document for each element in the array.
+
+The result is a set of documents where each document represents a single grade along with the associated student information.
+
+This is just a basic example, and you might use $unwind in combination with other aggregation stages to perform more complex operations on the unwound data. It's commonly used when you want to analyze or filter data at the array element level.
+
+
+
+In MongoDB's aggregation pipeline, data processing is performed using a sequence of stages. Each stage in the pipeline represents a specific operation that is applied to the documents as they pass through the pipeline. Here are some common aggregation stages in MongoDB:
+
+$match:
+
+Filters the documents based on specified criteria, allowing only matching documents to pass through to the next stage.
+javascript
+Copy code
+db.collection.aggregate([
+   { $match: { field: value } }
+])
+$project:
+
+Reshapes documents, selects or excludes fields, and computes expressions to create new fields.
+javascript
+Copy code
+db.collection.aggregate([
+   { $project: { newField: "$existingField", _id: 0 } }
+])
+$group:
+
+Groups documents based on specified keys and applies aggregate functions to the grouped data.
+javascript
+Copy code
+db.collection.aggregate([
+   { $group: { _id: "$field", total: { $sum: "$value" } } }
+])
+$sort:
+
+Sorts the documents based on specified fields and sort orders.
+javascript
+Copy code
+db.collection.aggregate([
+   { $sort: { field: 1 } }
+])
+$skip and $limit:
+
+Skips a specified number of documents (similar to OFFSET in SQL) and limits the number of documents in the output (similar to LIMIT in SQL).
+javascript
+Copy code
+db.collection.aggregate([
+   { $skip: 5 },
+   { $limit: 10 }
+])
+$unwind:
+
+Deconstructs an array field, creating a separate document for each element in the array.
+javascript
+Copy code
+db.collection.aggregate([
+   { $unwind: "$arrayField" }
+])
+$lookup:
+
+Performs a left outer join with another collection to combine documents based on a specified condition.
+javascript
+Copy code
+db.collection.aggregate([
+   {
+      $lookup: {
+         from: "anotherCollection",
+         localField: "field",
+         foreignField: "anotherField",
+         as: "outputField"
+      }
+   }
+])
+$group:
+
+Groups documents based on specified keys and applies aggregate functions to the grouped data.
+javascript
+Copy code
+db.collection.aggregate([
+   { $group: { _id: "$field", avgValue: { $avg: "$value" } } }
+])
+These are just a few examples of the many stages available in the MongoDB aggregation pipeline. Aggregation pipelines are powerful tools for transforming and analyzing data within MongoDB, providing a flexible and expressive way to perform complex data processing tasks. You can use multiple stages in a pipeline to create more advanced data transformations.
+
+
+
+
+
+
+
+

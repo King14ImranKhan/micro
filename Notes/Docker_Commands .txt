@@ -1,0 +1,130 @@
+Docker Commands - 
+Certainly! Below is an extensive list of Docker commands along with brief explanations:
+
+
+Run a Container:
+docker run <options> <image_name>
+Creates and starts a new container based on the specified image.
+
+
+List Running Containers:
+docker ps
+Shows a list of currently running containers.
+
+
+List All Containers (including stopped):
+docker ps -a
+Lists all containers, both running and stopped.
+
+
+Stop a Container:
+docker stop <container_id or container_name>
+Halts a running container.
+
+
+Start a Stopped Container:
+docker start <container_id or container_name>
+Resumes a previously stopped container.
+
+
+Restart a Container:
+docker restart <container_id or container_name>
+Stops and then starts a container.
+
+
+Remove a Container:
+docker rm <container_id or container_name>
+Deletes a stopped container.
+
+
+Remove All Stopped Containers:
+docker container prune
+Removes all stopped containers.
+
+
+Image Management:
+Pull an Image from Docker Hub:
+docker pull <image_name>
+Downloads an image from Docker Hub.
+
+
+List Downloaded Images:
+docker images
+Lists all locally downloaded images.
+
+
+Remove an Image:
+docker rmi <image_id or image_name>
+Deletes a local image.
+
+
+Remove All Unused Images:
+docker image prune
+Removes all dangling (unused) images.
+
+
+Container Interaction:
+Execute a Command in a Running Container:
+docker exec -it <container_id or container_name> <command>
+Runs a command inside a running container.
+
+
+Copy Files Between Host and Container:
+docker cp <local_path> <container_id or container_name>:<container_path>
+Copies files between the host and a running container.
+
+
+Docker Compose:
+Compose Up:
+docker-compose up
+Starts services defined in a docker-compose.yml file.
+
+
+Compose Down:
+docker-compose down
+Stops and removes containers, networks, and volumes defined in docker-compose.yml.
+
+
+Network and Volume Management:
+List Networks:
+docker network ls
+Lists all Docker networks.
+
+
+List Volumes:
+docker volume ls
+Lists all Docker volumes.
+Information and Troubleshooting:
+
+
+Docker System Information:
+docker info
+Displays system-wide information about Docker.
+
+
+Docker Logs:
+docker logs <container_id or container_name>
+Shows logs of a specific container.
+
+
+Docker Events:
+docker events
+Monitors events in real-time.
+
+
+
+System Cleanup:
+Remove All Unused Resources:
+docker system prune
+Removes all stopped containers, unused networks, and dangling images.
+
+
+Remove All Containers, Networks, and Volumes:
+docker system prune --all --volumes
+Cleans up all containers, networks, and volumes.
+
+
+
+
+
+

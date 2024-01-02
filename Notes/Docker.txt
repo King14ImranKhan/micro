@@ -1,0 +1,122 @@
+Docker
+Docker image is nothing, it is just set of readonly files. Once a docker image is build then it can not be modified.
+But we can alwayz create a new docker image with the help of existing docker image by taking existing docker image as a base image.
+
+Docker images are used to make Docker containers. When we run Docker image with the help of docker run command then it produces output as
+a container.So we can say Docker Containers are nothing, they are just instances of Docker image.
+We can create any number of Docker containers with the help of same Docker image.
+So we can say Docker image is blue print of Docker container.
+Docker container is actually place where live application or database any other software application is runs.
+
+Docker image contains necessary set of files.This necessary set of files are nothing but a small part of an operating system 
+which is required to run docker container as a isolated unit in any machine.
+In programming language we can say like Docker image a class and Docker containers are object of that class.
+
+Working process - Create docker file and define process in it.
+-> Go to project directory where docker file is placed and run command
+docker build -t ${app-name}:${version}   -> It will execute all steps whatever we mentioned in Docker file.
+-> above command created docker images and now to all docker images run command 
+docker images    -> It will list all images with Tags(tags are nothing but version we added in this command docker build -t ${app-name}:${version})
+
+We have created Docker images and now we are required to deploy this Docker image to Kubernetes cluster.
+To deploy this Docker image to K8s, we need to create deployment object. 
+Best way to make this deployment in K8s through yaml file.
+1. kubectl command to create deployment object.
+2.By creating this yaml file or by configuring this yaml file we are telling K8s to create instance of my springboot application in k8s cluster or
+in other words we saying create a springboot image in my kubernetes PODS and just run it inside some container that part we need to describe in
+deployment yaml file
+Go to your application and create any yaml file
+
+k8s-deployment.yaml
+
+apiVersion : apps/v1   -> It describes version of your api server
+kind : Deployment      -> Kubernetes resource kind we are creating , it may be service also 
+metadata :             -> Metadata describes about application name and label
+     name : sping-boot-k8s
+spec:                  -> in short you can group multiple pods inside a single service thats the reason we using selectors and labels(In next tutorial) For now 										understand selectors and labels should be same in deployment and service as well 
+ selector :
+       matchLabels:
+           apps: spring-boot-k8s
+ replicas : 3          -> We are just saying Kubernetes to create two pods of my application in Kubernetes cluster
+ template : 
+      metadata : 
+        labels :
+          apps : spring-boot-k8s
+   spec :
+      containers :
+     - name            : spring-boot-k8s    ->this is container name
+       image           : sping-boot-k8s-example:1.0    -> we are telling k8s that this is image that needs to be fetched from Docker repo
+       imagePullPolicy : IfNotPresent
+       ports           : 
+                -containerPort : 8080     -> The port that the container is running on in the k8s cluster
+
+After creation of deployment file go to that directory in project where you have created and run command
+kubectl apply -f k8s-deployment.yaml     ->It will create a deployment object
+              To verify whether deployment object created or not run below command
+kubectl get deployments    -> It will show like
+
+Name              Ready              UP-TO-DATE            AVAILABLE      AGE
+spring-boot-k8     3/3                 3                      3           1 hour
+
+In file k8s-deployment.yaml we have defined  replicas : 3 so it showing 3 PODS are running. 
+Command to check all PODs run
+kubectl get pods
+result
+Name                                    Ready              status                     Restarts      AGE
+spring-boot-k8-864ffe6                    1/1              running                      0          1 hour
+spring-boot-k8-864ffe7                    1/1              running                      0          1 hour
+spring-boot-k8-864ffe8                    1/1              running                      0          1 hour
+
+It means for a single application three separate instance are running in three different PODs with different IP Address
+
+We can also verify whether our PODs are running successfully or not by checking LOG of the POD by running below command
+kubectl logs ${name of POD}
+
+
+Now challenge is here like when i send request to our application where does this request will be land whether it will go to the 1st POD or 2nd POD or 3rd POD.
+To solve this kind of challenge we need some Load balancer mechanism and that is why Kubernetes provides us component that is Service.
+Kubernetes Service plays a role of service discovery where it expose our application to outside world or we can say outside K8s cluster as well as it act as a 
+Load Balancer where it decides which POD should handle the request.If a user send request to application since 3 instance is running, then K8s service will decide to whom need to send that particular request.
+
+We can create K8s service object with yaml approach
+k8s-service.yaml file 
+
+apiVersion: v1
+kind: Service           -> Kubernetes resource we are creating 
+metadata:               -> Metadata of resource kind we are creating
+      name: spring-boot-k8s-svc
+spec:
+   selector:
+     app: spring-boot-k8s   -> selector name should be same as deployment selector
+   ports:
+     -protocol: "TCP"
+      port : 8080    -> The port that the service is running on in the cluster
+      targetport:8080   -> The port exposed by the service
+   type: NodePort  -> Type of service
+
+-> 3 Service types available in K8s
+NodePort
+ClusterIp
+LoadBalancer
+
+We have created service file now lets expose our app to outside k8s cluster by below command
+kubectl apply -f ${filename}
+after hitting this command it will create a service and now to check created service run command
+kubectl get service / kubectl get svc     -> both command will work then will show like below
+
+NAME                          TYPE                   CLUSTER-IP                    	External-IP            PORT(S)                   AGE
+kubernetes                    ClusterIP              10.90.70.1                           <none>                443/TCP                  35 minutes
+pring-boot-k8s-svc            NodePort               100.00.90.99.1                       <none>               8080:32208/TCP            35 minutes
+
+32208/TCP - is port of node and with the help of this we can access our api.
+
+To verify node ip run command
+kubectl get nodes -o wide
+
+We have defined service type as node port so we need Node IP(Internal IP) and node port to access the api
+     
+
+  
+
+
+
