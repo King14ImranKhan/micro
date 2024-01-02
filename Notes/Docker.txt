@@ -37,7 +37,7 @@ spec:                  -> in short you can group multiple pods inside a single s
  selector :
        matchLabels:
            apps: spring-boot-k8s
- replicas : 3          -> We are just saying Kubernetes to create two pods of my application in Kubernetes cluster
+ replicas : 3          -> We are just saying Kubernetes to create three pods of my application in Kubernetes cluster
  template : 
       metadata : 
         labels :
